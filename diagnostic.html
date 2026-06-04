@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StratAudit - Diagnostic Financier</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d1c38;--navy-mid:#1a3360;--navy-dim:rgba(13,28,56,.06);
+  --white:#faf9f6;--off:#f0ede6;--border:#e0dbd0;
+  --text:#0d1c38;--text2:#56606f;--text3:#9a9ea8;
+  --accent:#1a5c9e;--accent-dim:rgba(26,92,158,.1);
+  --green:#1a6644;--green-dim:rgba(26,102,68,.1);
+  --amber:#8a6010;--amber-dim:rgba(138,96,16,.1);
+  --red:#8b2818;--red-dim:rgba(139,40,24,.1);
+  --gold:#b8960c;--gold-dim:rgba(184,150,12,.12);
+  --r:10px;--r-sm:6px;
+  --sh:0 2px 10px rgba(13,28,56,.07);--sh-md:0 4px 22px rgba(13,28,56,.1)
+}
+html{scroll-behavior:smooth}
+body{font-family:'Mulish',sans-serif;background:var(--off);color:var(--text);min-height:100vh;font-size:13px}
+
+/* PAYWALL */
+#paywall{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  padding:2rem;
+}
+.pw-card{
+  background:var(--white);border-radius:14px;
+  padding:3rem 3.5rem;max-width:460px;width:100%;
+  text-align:center;
+  box-shadow:0 24px 80px rgba(0,0,0,.35);
+  position:relative;overflow:hidden;
+}
+.pw-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),#d4ac20);
+}
+.pw-logo{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:600;color:var(--navy);
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:.2rem;
+}
+.pw-logo span{color:var(--gold)}
+.pw-sub-brand{font-size:10px;color:var(--text3);font-weight:300;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2rem}
+.pw-title{
+  font-family:'Playfair Display',serif;
+  font-size:21px;font-weight:400;font-style:italic;
+  color:var(--navy);margin-bottom:.5rem;line-height:1.3;
+}
+.pw-desc{font-size:12.5px;color:var(--text2);font-weight:300;line-height:1.65;margin-bottom:2rem}
+.pw-label{
+  display:block;font-size:9.5px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text2);margin-bottom:6px;text-align:left;
+}
+.pw-input{
+  width:100%;background:var(--off);
+  border:1.5px solid var(--border);border-radius:8px;
+  color:var(--navy);font-family:'Mulish',sans-serif;
+  font-size:14px;font-weight:500;
+  padding:12px 14px;outline:none;
+  letter-spacing:.06em;text-transform:uppercase;
+  transition:border-color .15s,box-shadow .15s;
+  margin-bottom:8px;
+}
+.pw-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.pw-input::placeholder{color:var(--text3);font-weight:300;text-transform:none;letter-spacing:0}
+.pw-btn{
+  width:100%;padding:13px;margin-top:4px;
+  font-family:'Mulish',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  background:var(--navy);border:none;border-radius:8px;
+  color:#fff;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.pw-btn:hover:not(:disabled){background:var(--navy-mid)}
+.pw-btn:disabled{opacity:.55;cursor:not-allowed}
+.pw-spinner{
+  width:14px;height:14px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .7s linear infinite;display:none;
+}
+.pw-err{
+  font-size:11.5px;color:var(--red);font-weight:500;
+  background:var(--red-dim);border:1px solid rgba(139,40,24,.2);
+  border-radius:6px;padding:8px 12px;margin-top:8px;display:none;
+}
+.pw-divider{height:1px;background:var(--border);margin:1.5rem 0}
+.pw-buy{font-size:11.5px;color:var(--text2);font-weight:300}
+.pw-buy a{color:var(--accent);font-weight:600;text-decoration:none}
+.pw-buy a:hover{text-decoration:underline}
+.pw-demo{
+  margin-top:10px;font-size:10.5px;color:var(--text3);font-weight:300;
+}
+.pw-demo code{
+  background:var(--off);border:1px solid var(--border);
+  border-radius:4px;padding:2px 6px;
+  font-family:monospace;font-size:11px;color:var(--text2);
+  letter-spacing:.04em;
+}
+
+/* HEADER */
+.hd{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 2.4rem;position:sticky;top:0;z-index:100}
+.hd-brand{display:flex;align-items:center;gap:11px}
+.hd-mark{width:30px;height:30px;border:1px solid rgba(255,255,255,.2);border-radius:5px;display:grid;place-items:center}
+.hd-mark svg{width:16px;height:16px}
+.hd-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#fff;letter-spacing:.04em}
+.hd-name span{color:#d4ac20}
+.hd-sub{font-size:9.5px;color:rgba(255,255,255,.38);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+
+/* WRAP */
+.wrap{max-width:1100px;margin:0 auto;padding:2rem 2rem 4rem}
+
+/* FORM CARD */
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:2rem 2.2rem 1.8rem;margin-bottom:1.6rem}
+.fc-title{font-family:'Playfair Display',serif;font-size:18px;font-style:italic;color:var(--navy);margin-bottom:.3rem}
+.fc-sub{font-size:11px;color:var(--text3);font-weight:300;margin-bottom:1.8rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.section-lbl{font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;margin-top:4px}
+.field label{display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-bottom:5px}
+.field input,.field select{width:100%;background:var(--off);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'Mulish',sans-serif;font-size:13px;padding:8px 10px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.field input::placeholder{color:var(--text3);font-weight:300}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9ea8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px;cursor:pointer}
+.field select option{background:var(--white)}
+.field-hint{font-size:10px;color:var(--text3);font-weight:300;margin-top:3px}
+.sep{height:1px;background:var(--border);margin:1.2rem 0}
+.err-box{background:var(--red-dim);border:1px solid rgba(139,40,24,.2);border-radius:var(--r-sm);padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:12px;display:none}
+.btn-go{width:100%;padding:13px;font-family:'Mulish',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--navy);border:none;border-radius:var(--r-sm);color:#fff;cursor:pointer;transition:background .2s}
+.btn-go:hover{background:var(--navy-mid)}
+
+/* RESULTS */
+.results{display:none}
+.results.on{display:block}
+
+/* KPI STRIP */
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.4rem}
+.kpi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.3rem;box-shadow:var(--sh);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.kpi-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
+.kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.kpi-card.cn::after{background:var(--navy)}
+.kpi-card.ca::after{background:var(--accent)}
+.kpi-card.cg::after{background:var(--green)}
+.kpi-card.co::after{background:var(--amber)}
+.kpi-lbl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.kpi-val{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--navy);line-height:1}
+.kpi-sub{font-size:10px;color:var(--text3);margin-top:4px;font-weight:300}
+
+/* CHARTS */
+.chart-row{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:12px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.4rem 1.5rem;box-shadow:var(--sh)}
+.card-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.1rem}
+.card-title{font-family:'Playfair Display',serif;font-size:14px;font-style:italic;color:var(--navy)}
+.card-sub{font-size:10px;color:var(--text3);font-weight:300;margin-top:2px}
+.pill{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:3px 10px;border-radius:999px;flex-shrink:0}
+.p-navy{background:var(--navy-dim);color:var(--navy-mid)}
+.p-blue{background:var(--accent-dim);color:var(--accent)}
+
+/* SCORE */
+.score-banner{background:var(--navy);border-radius:var(--r);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh-md);margin-bottom:1.2rem}
+.score-left h2{font-family:'Playfair Display',serif;font-size:20px;font-style:italic;color:#fff;margin-bottom:3px}
+.score-left p{font-size:11px;color:rgba(255,255,255,.4);font-weight:300}
+.score-num{font-family:'Playfair Display',serif;font-size:52px;font-weight:600;line-height:1}
+.score-num.ok{color:#4dba87}
+.score-num.warn{color:#e0ac3c}
+.score-num.crit{color:#e06060}
+.score-lbl{font-size:10px;color:rgba(255,255,255,.45);text-align:right;text-transform:uppercase;letter-spacing:.1em;margin-top:3px}
+
+/* REPORT */
+.report{display:flex;flex-direction:column;gap:12px}
+.theme{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.theme-hd{display:flex;align-items:center;gap:12px;padding:.9rem 1.4rem;border-bottom:1px solid var(--border)}
+.theme-icon{font-size:17px;flex-shrink:0}
+.theme-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--navy)}
+.theme-badge{margin-left:auto;font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 11px;border-radius:999px}
+.b-ok{background:var(--green-dim);color:var(--green)}
+.b-warn{background:var(--amber-dim);color:var(--amber)}
+.b-crit{background:var(--red-dim);color:var(--red)}
+.b-info{background:var(--navy-dim);color:var(--navy-mid)}
+.theme-body{padding:1rem 1.4rem}
+.theme-resume{font-size:12.5px;color:var(--text2);line-height:1.7;margin-bottom:.9rem}
+.recos{display:flex;flex-direction:column;gap:6px}
+.reco{display:flex;align-items:flex-start;gap:9px;padding:8px 11px;border-radius:var(--r-sm);font-size:12px;line-height:1.55}
+.reco.ok{background:var(--green-dim);color:#0d3d25;border-left:2px solid var(--green)}
+.reco.warn{background:var(--amber-dim);color:#4a3008;border-left:2px solid var(--amber)}
+.reco.crit{background:var(--red-dim);color:#4a1208;border-left:2px solid var(--red)}
+.reco.info{background:var(--accent-dim);color:#0a2240;border-left:2px solid var(--accent)}
+.reco-icon{flex-shrink:0;margin-top:1px;font-size:13px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.anim{animation:fadeUp .35s ease forwards}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- PAYWALL -->
+<div id="paywall">
+  <div class="pw-card">
+    <div class="pw-logo">Strat<span>Audit</span></div>
+    <div class="pw-sub-brand">Diagnostic Financier Strategique</div>
+    <div class="pw-title">Acces a votre diagnostic</div>
+    <p class="pw-desc">Renseignez la cle de licence recue par email apres votre achat pour acceder au dashboard complet.</p>
+    <label class="pw-label" for="pw-key">Votre cle de licence</label>
+    <input class="pw-input" id="pw-key" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="40">
+    <div class="pw-err" id="pw-err">Cle invalide. Verifiez votre email d'achat ou contactez le support.</div>
+    <button class="pw-btn" id="pw-btn" onclick="verifierLicence()">
+      <div class="pw-spinner" id="pw-spin"></div>
+      <span id="pw-btn-lbl">Acceder au diagnostic</span>
+    </button>
+    <div class="pw-divider"></div>
+    <div class="pw-buy">Pas encore de licence ? <a href="https://selenestudio.lemonsqueezy.com/checkout/buy/42a5ec29-2140-4449-ab12-4e57252b1a18" target="_blank">Obtenir StratAudit - 139 EUR</a></div>
+    <div class="pw-demo">Cle de demo : <code>DEMO-1234-5678-ABCD</code></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="hd">
+  <div class="hd-brand">
+    <div class="hd-mark">
+      <svg viewBox="0 0 16 16" fill="none">
+        <polyline points="1,12 5,7 9,9.5 14,3" stroke="rgba(255,255,255,.65)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="14" cy="3" r="1.4" fill="rgba(255,255,255,.65)"/>
+      </svg>
+    </div>
+    <div>
+      <div class="hd-name">Strat<span>Audit</span></div>
+      <div class="hd-sub">Diagnostic Financier Strategique</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="form-card">
+    <div class="fc-title">Donnees financieres de l'entreprise</div>
+    <div class="fc-sub">Renseignez les chiffres de l'exercice en cours ou du dernier exercice clos.</div>
+    <div class="g3">
+      <div class="field">
+        <label>Secteur d'activite</label>
+        <select id="f-secteur">
+          <option value="services">Services aux entreprises</option>
+          <option value="commerce">Commerce / Distribution</option>
+          <option value="industrie">Industrie / Production</option>
+          <option value="tech">Tech / SaaS / Digital</option>
+          <option value="artisanat">Artisanat / BTP</option>
+          <option value="conseil">Conseil / Professions liberales</option>
+          <option value="restauration">Restauration / Hotellerie</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Forme juridique</label>
+        <select id="f-juridique">
+          <option value="SAS">SAS / SASU</option>
+          <option value="SARL">SARL / EURL</option>
+          <option value="EI">EI / Micro-entreprise</option>
+          <option value="SA">SA</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Effectif salarie</label>
+        <select id="f-effectif">
+          <option value="0">Dirigeant seul</option>
+          <option value="1-5">1 a 5 salaries</option>
+          <option value="6-20">6 a 20 salaries</option>
+          <option value="21-50">21 a 50 salaries</option>
+          <option value="50+">Plus de 50 salaries</option>
+        </select>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <div class="section-lbl">Compte de resultat (annuel, EUR)</div>
+    <div class="g4">
+      <div class="field">
+        <label>Chiffre d'affaires HT</label>
+        <input type="number" id="f-ca" placeholder="Ex : 480 000" min="0">
+        <div class="field-hint">Total ventes / prestations</div>
+      </div>
+      <div class="field">
+        <label>Charges d'exploitation</label>
+        <input type="number" id="f-charges" placeholder="Ex : 380 000" min="0">
+        <div class="field-hint">Achats, salaires, loyer...</div>
+      </div>
+      <div class="field">
+        <label>Resultat net</label>
+        <input type="number" id="f-resultat" placeholder="Ex : 42 000">
+        <div class="field-hint">Apres IS ou IR</div>
+      </div>
+      <div class="field">
+        <label>EBE / EBITDA</label>
+        <input type="number" id="f-ebe" placeholder="Ex : 68 000" min="0">
+        <div class="field-hint">Excedent brut d'exploitation</div>
+      </div>
+    </div>
+    <div class="section-lbl">Bilan (EUR)</div>
+    <div class="g4">
+      <div class="field">
+        <label>Tresorerie disponible</label>
+        <input type="number" id="f-treso" placeholder="Ex : 65 000" min="0">
+        <div class="field-hint">Soldes bancaires actuels</div>
+      </div>
+      <div class="field">
+        <label>Dettes bancaires</label>
+        <input type="number" id="f-dettes" placeholder="Ex : 220 000" min="0">
+        <div class="field-hint">Emprunts en cours</div>
+      </div>
+      <div class="field">
+        <label>Capitaux propres</label>
+        <input type="number" id="f-capitaux" placeholder="Ex : 150 000" min="0">
+        <div class="field-hint">Capital + reserves + resultat</div>
+      </div>
+      <div class="field">
+        <label>Delai clients (jours)</label>
+        <input type="number" id="f-delai" placeholder="Ex : 45" min="0" max="365">
+        <div class="field-hint">DSO - jours de CA en attente</div>
+      </div>
+    </div>
+    <div class="err-box" id="err-box">Veuillez renseigner au minimum le CA et les charges.</div>
+    <button class="btn-go" onclick="lancer()">Lancer le diagnostic</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="kpi-strip">
+      <div class="kpi-card cn"><div class="kpi-lbl">CA Annuel</div><div class="kpi-val" id="k-ca">-</div><div class="kpi-sub">Chiffre d'affaires</div></div>
+      <div class="kpi-card ca"><div class="kpi-lbl">Marge Nette</div><div class="kpi-val" id="k-mn">-</div><div class="kpi-sub">Resultat net / CA</div></div>
+      <div class="kpi-card cg"><div class="kpi-lbl">Mois Tresorerie</div><div class="kpi-val" id="k-tr">-</div><div class="kpi-sub">Treso / charges mensuelles</div></div>
+      <div class="kpi-card co"><div class="kpi-lbl">Dettes / EBE</div><div class="kpi-val" id="k-de">-</div><div class="kpi-sub">Capacite remboursement</div></div>
+    </div>
+    <div class="chart-row">
+      <div class="card">
+        <div class="card-hd">
+          <div><div class="card-title">Repartition du CA</div><div class="card-sub">Charges vs resultat vs EBE</div></div>
+          <span class="pill p-navy">Resultat</span>
+        </div>
+        <canvas id="ch-ca" height="200"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <div><div class="card-title">Structure Financiere</div><div class="card-sub">Tresorerie, capitaux, dettes</div></div>
+          <span class="pill p-blue">Bilan</span>
+        </div>
+        <canvas id="ch-bilan" height="200"></canvas>
+      </div>
+    </div>
+    <div class="score-banner">
+      <div class="score-left">
+        <h2>Score de Sante Financiere</h2>
+        <p>Calcule sur 4 dimensions : tresorerie, rentabilite, endettement, structure</p>
+      </div>
+      <div style="text-align:right">
+        <div class="score-num" id="score-num">-</div>
+        <div class="score-lbl" id="score-lbl">-</div>
+      </div>
+    </div>
+    <div class="report" id="report"></div>
+  </div>
+</div>
+
+<script>
+var CH = {};
+
+// ---- PAYWALL ----
+document.getElementById('pw-key').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') verifierLicence();
+});
+
+function verifierLicence() {
+  var raw = document.getElementById('pw-key').value.trim().toUpperCase();
+  var err = document.getElementById('pw-err');
+  var btn = document.getElementById('pw-btn');
+  var spin = document.getElementById('pw-spin');
+  var lbl = document.getElementById('pw-btn-lbl');
+
+  err.style.display = 'none';
+
+  if (raw.length < 8) {
+    err.textContent = 'Veuillez saisir une cle de licence valide.';
+    err.style.display = 'block';
+    return;
+  }
+
+  if (raw === 'DEMO-1234-5678-ABCD') {
+    ouvrirDashboard(raw);
+    return;
+  }
+
+  btn.disabled = true;
+  spin.style.display = 'block';
+  lbl.textContent = 'Verification...';
+
+  fetch('https://api.lemonsqueezy.com/v1/licenses/validate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ license_key: raw })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.valid === true) {
+      return fetch('https://api.lemonsqueezy.com/v1/licenses/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ license_key: raw, instance_name: 'SA-' + Date.now() })
+      })
+      .then(function(r2) { return r2.json(); })
+      .then(function(d2) {
+        if (d2.activated || d2.instance) {
+          ouvrirDashboard(raw);
+        } else {
+          afficherErreur('Cle deja activee. Contactez le support si necessaire.');
+          resetBtn();
+        }
+      });
+    } else {
+      afficherErreur('Cle invalide ou expiree. Verifiez votre email d\'achat.');
+      resetBtn();
+    }
+  })
+  .catch(function() {
+    var saved = localStorage.getItem('sa_key');
+    if (saved && saved === raw) {
+      ouvrirDashboard(raw);
+    } else {
+      afficherErreur('Impossible de verifier la licence. Verifiez votre connexion.');
+      resetBtn();
+    }
+  });
+}
+
+function ouvrirDashboard(key) {
+  localStorage.setItem('sa_key', key);
+  var pw = document.getElementById('paywall');
+  pw.style.transition = 'opacity .4s ease';
+  pw.style.opacity = '0';
+  setTimeout(function() { pw.style.display = 'none'; }, 420);
+}
+
+function afficherErreur(msg) {
+  var err = document.getElementById('pw-err');
+  err.textContent = msg;
+  err.style.display = 'block';
+}
+
+function resetBtn() {
+  document.getElementById('pw-btn').disabled = false;
+  document.getElementById('pw-spin').style.display = 'none';
+  document.getElementById('pw-btn-lbl').textContent = 'Acceder au diagnostic';
+}
+
+// Auto-login si deja authentifie
+(function() {
+  var saved = localStorage.getItem('sa_key');
+  if (saved && saved.length > 8) {
+    ouvrirDashboard(saved);
+  }
+})();
+
+// ---- UTILS ----
+function v(id) { var e = document.getElementById(id); return e ? e.value : ''; }
+function n(id) { return parseFloat(v(id)) || 0; }
+function fmt(x) { return Math.round(x || 0).toLocaleString('fr-FR'); }
+function fmtM(x) {
+  var a = Math.abs(x);
+  if (a >= 1e6) return (x / 1e6).toFixed(1).replace('.', ',') + ' M EUR';
+  if (a >= 1e3) return Math.round(x / 1e3) + ' k EUR';
+  return fmt(x) + ' EUR';
+}
+
+// ---- LANCER ----
+function lancer() {
+  var errBox = document.getElementById('err-box');
+  errBox.style.display = 'none';
+
+  var ca = n('f-ca');
+  var charges = n('f-charges');
+  var resultat = n('f-resultat');
+  var ebe = n('f-ebe');
+  var treso = n('f-treso');
+  var dettes = n('f-dettes');
+  var capitaux = n('f-capitaux');
+  var delai = n('f-delai');
+  var secteur = v('f-secteur');
+
+  if (!ca || !charges) { errBox.style.display = 'block'; return; }
+
+  var res = document.getElementById('results');
+  res.classList.add('on');
+  window.scrollTo({ top: res.offsetTop - 80, behavior: 'smooth' });
+
+  var chargesM = charges / 12;
+  var mn = ca > 0 ? resultat / ca * 100 : 0;
+  var moisTr = chargesM > 0 ? treso / chargesM : 0;
+  var ratioDe = ebe > 0 ? dettes / ebe : 999;
+  var ratioCP = (capitaux + dettes) > 0 ? capitaux / (capitaux + dettes) * 100 : 0;
+  var tauxCh = ca > 0 ? charges / ca * 100 : 0;
+
+  document.getElementById('k-ca').textContent = fmtM(ca);
+  document.getElementById('k-mn').textContent = mn.toFixed(1) + '%';
+  document.getElementById('k-tr').textContent = moisTr.toFixed(1);
+  document.getElementById('k-de').textContent = ratioDe < 90 ? ratioDe.toFixed(1) + 'x' : 'N/A';
+
+  var sc = 0;
+  if (mn >= 10) sc += 25; else if (mn >= 3) sc += 15; else if (mn >= 0) sc += 7;
+  if (moisTr >= 4) sc += 25; else if (moisTr >= 2) sc += 15; else if (moisTr >= 1) sc += 7;
+  if (ratioDe < 3) sc += 25; else if (ratioDe < 5) sc += 15; else if (ratioDe < 8) sc += 7;
+  if (ratioCP >= 30) sc += 25; else if (ratioCP >= 15) sc += 15; else sc += 5;
+  sc = Math.min(100, Math.max(0, sc));
+
+  var sEl = document.getElementById('score-num');
+  sEl.textContent = sc;
+  sEl.className = 'score-num ' + (sc >= 70 ? 'ok' : sc >= 45 ? 'warn' : 'crit');
+  document.getElementById('score-lbl').textContent = sc >= 70 ? 'Entreprise saine' : sc >= 45 ? 'Vigilance conseillee' : 'Situation critique';
+
+  dessinerGraphiques(ca, charges, resultat, ebe, treso, dettes, capitaux);
+
+  var rapport = diagnostiquer(ca, charges, resultat, ebe, treso, dettes, capitaux, delai, moisTr, mn, ratioDe, ratioCP, tauxCh, chargesM, secteur);
+  afficherRapport(rapport);
+}
+
+// ---- GRAPHIQUES ----
+function dessinerGraphiques(ca, charges, resultat, ebe, treso, dettes, capitaux) {
+  var tt = {
+    backgroundColor: '#0d1c38', titleColor: '#faf9f6',
+    bodyColor: '#c8d4ec', borderColor: 'rgba(255,255,255,.1)',
+    borderWidth: 1, padding: 10,
+    titleFont: { family: 'Mulish', size: 11 },
+    bodyFont: { family: 'Playfair Display', size: 14 },
+    callbacks: { label: function(ctx) { return '  ' + fmt(ctx.raw) + ' EUR'; } }
+  };
+  if (CH.ca) CH.ca.destroy();
+  var c1 = document.getElementById('ch-ca');
+  if (c1) {
+    CH.ca = new Chart(c1, {
+      type: 'doughnut',
+      data: {
+        labels: ['Charges', 'Resultat net', 'EBE residuel'],
+        datasets: [{ data: [charges, Math.max(0, resultat), Math.max(0, ebe - Math.max(0, resultat))],
+          backgroundColor: ['#0d1c38', '#1a6644', '#1a5c9e'],
+          borderColor: '#faf9f6', borderWidth: 3, hoverOffset: 5 }]
+      },
+      options: {
+        responsive: true, animation: { duration: 600 }, cutout: '62%',
+        plugins: {
+          legend: { display: true, position: 'bottom', labels: { color: '#56606f', font: { family: 'Mulish', size: 11 }, padding: 14, boxWidth: 11 } },
+          tooltip: tt
+        }
+      }
+    });
+  }
+  if (CH.bilan) CH.bilan.destroy();
+  var c2 = document.getElementById('ch-bilan');
+  if (c2) {
+    CH.bilan = new Chart(c2, {
+      type: 'bar',
+      data: {
+        labels: ['Tresorerie', 'Capitaux propres', 'Dettes bancaires'],
+        datasets: [{ data: [treso, capitaux, dettes],
+          backgroundColor: ['rgba(26,102,68,.7)', 'rgba(26,92,158,.7)', 'rgba(139,40,24,.7)'],
+          borderColor: ['#1a6644', '#1a5c9e', '#8b2818'],
+          borderWidth: 1.5, borderRadius: 5 }]
+      },
+      options: {
+        responsive: true, animation: { duration: 600 },
+        plugins: { legend: { display: false }, tooltip: tt },
+        scales: {
+          x: { grid: { color: 'rgba(13,28,56,.05)' }, ticks: { color: '#9a9ea8', font: { family: 'Mulish', size: 11 } } },
+          y: { grid: { color: 'rgba(13,28,56,.05)' }, ticks: { color: '#9a9ea8', font: { family: 'Mulish', size: 10 }, callback: function(val) { return fmt(val) + ' EUR'; } } }
+        }
+      }
+    });
+  }
+}
+
+// ---- DIAGNOSTIC ----
+function diagnostiquer(ca, charges, resultat, ebe, treso, dettes, capitaux, delai, moisTr, mn, ratioDe, ratioCP, tauxCh, chargesM, secteur) {
+
+  // TRESORERIE
+  var tSt, tRe, tRec = [];
+  if (moisTr >= 4) {
+    tSt = 'ok';
+    tRe = 'Votre tresorerie de ' + fmt(treso) + ' EUR couvre ' + moisTr.toFixed(1) + ' mois de charges, au-dessus du seuil recommande de 3 mois. Vous disposez d\'une marge confortable pour absorber les aleas.';
+    tRec.push({ n: 'ok',   t: 'Tresorerie securisee. Envisagez de placer l\'excedent sur un compte remunere pour les sommes au-dela de 4 mois de charges.' });
+    tRec.push({ n: 'info', t: 'Delai client de ' + delai + ' jours : surveillez regulierement le DSO pour maintenir ce niveau de liquidites.' });
+  } else if (moisTr >= 2) {
+    tSt = 'warn';
+    tRe = 'Votre tresorerie de ' + fmt(treso) + ' EUR represente ' + moisTr.toFixed(1) + ' mois de charges. Niveau acceptable mais insuffisant pour absorber un choc. Objectif recommande : 3 mois, soit ' + fmt(chargesM * 3) + ' EUR.';
+    tRec.push({ n: 'warn', t: 'Constituez une reserve cible de ' + fmt(chargesM * 3) + ' EUR (3 mois de charges) d\'ici 6 mois en affectant une partie du resultat.' });
+    tRec.push({ n: 'info', t: delai > 45 ? 'Delai client de ' + delai + ' jours, superieur a la norme. Relancez les impayes et envisagez l\'affacturage.' : 'Delai client de ' + delai + ' jours : correct. Maintenez des conditions de reglement fermes.' });
+    tRec.push({ n: 'info', t: 'Negociez a titre preventif une ligne de credit court terme avec votre banque.' });
+  } else {
+    tSt = 'crit';
+    tRe = 'Tresorerie critique : ' + fmt(treso) + ' EUR soit ' + moisTr.toFixed(1) + ' mois de charges. En dessous de 2 mois, un retard client peut mettre l\'entreprise en defaut de paiement. Action immediate requise.';
+    tRec.push({ n: 'crit', t: 'Objectif immediat : atteindre ' + fmt(chargesM * 2) + ' EUR (2 mois) dans les 90 jours. Chaque euro de resultat doit aller en priorite aux liquidites.' });
+    tRec.push({ n: 'crit', t: delai > 30 ? 'Delai client de ' + delai + ' jours : reduisez-le a 30 jours max. Chaque jour gagne libere ' + fmt(ca / 365) + ' EUR de tresorerie.' : 'Activez immediatement une ligne de decouvert aupres de votre banque.' });
+    tRec.push({ n: 'warn', t: 'Identifiez les charges reportables (loyer, fournisseurs, abonnements) pour degager ' + fmt(chargesM * 0.1) + ' EUR/mois.' });
+    tRec.push({ n: 'info', t: 'Etablissez un previsionnel de tresorerie semaine par semaine avec votre expert-comptable.' });
+  }
+
+  // RENTABILITE
+  var rSt, rRe, rRec = [];
+  if (mn >= 10) {
+    rSt = 'ok';
+    rRe = 'Marge nette de ' + mn.toFixed(1) + '% - excellente performance. La structure de couts est maitrisee. Taux de charges a ' + tauxCh.toFixed(1) + '% du CA.';
+    rRec.push({ n: 'ok',   t: 'Marge nette solide a ' + mn.toFixed(1) + '%. Veillez a maintenir ce niveau en anticipant les prochaines hausses de charges.' });
+    rRec.push({ n: 'info', t: ebe > 0 ? 'EBE de ' + fmt(ebe) + ' EUR (' + (ebe / ca * 100).toFixed(1) + '% du CA) : excellente capacite d\'autofinancement.' : 'Renseignez votre EBE pour affiner l\'analyse de votre capacite d\'autofinancement.' });
+    rRec.push({ n: 'info', t: 'Identifiez vos lignes les plus rentables pour concentrer les efforts commerciaux.' });
+  } else if (mn >= 3) {
+    rSt = 'warn';
+    rRe = 'Marge nette de ' + mn.toFixed(1) + '% - rentabilite moderee. L\'entreprise est beneficiaire mais la marge de securite est etroite : un ralentissement de 10% fragiliserait le resultat.';
+    rRec.push({ n: 'warn', t: 'Objectif de marge : 8-10%. Une reduction de 5 points du taux de charges libererait ' + fmt(ca * 0.05) + ' EUR de resultat supplementaire.' });
+    rRec.push({ n: 'warn', t: 'Une hausse de prix de 3% sur votre CA genere ' + fmt(ca * 0.03) + ' EUR de resultat net additionnel sans cout supplementaire.' });
+    rRec.push({ n: 'info', t: 'Identifiez vos clients les moins rentables (prix trop bas, delais trop longs) et renegociez en priorite.' });
+  } else if (mn >= 0) {
+    rSt = 'warn';
+    rRe = 'Marge nette de ' + mn.toFixed(1) + '% - rentabilite quasi nulle. Le moindre imprévu generera une perte.';
+    rRec.push({ n: 'crit', t: 'Realisez un audit de vos charges fixes - objectif : reduction de 10% soit ' + fmt(charges * 0.1) + ' EUR annuels.' });
+    rRec.push({ n: 'warn', t: 'Une hausse de 5% sur votre CA sans cout supplementaire genere ' + fmt(ca * 0.05) + ' EUR de resultat.' });
+    rRec.push({ n: 'info', t: 'Abandonnez ou renegociez les contrats deficitaires. Un CA plus faible mais plus rentable est preferable.' });
+  } else {
+    rSt = 'crit';
+    rRe = 'Resultat net negatif de ' + fmt(Math.abs(resultat)) + ' EUR - l\'entreprise perd de l\'argent. Une restructuration est indispensable.';
+    rRec.push({ n: 'crit', t: 'Pour atteindre l\'equilibre, les charges doivent descendre sous ' + fmt(ca * 0.95) + ' EUR ou le CA depasser ' + fmt(charges * 1.05) + ' EUR.' });
+    rRec.push({ n: 'crit', t: 'Analysez immediatement les 3 postes de charges les plus lourds - objectif reduction de 15% soit ' + fmt(charges * 0.15) + ' EUR annuels.' });
+    rRec.push({ n: 'warn', t: 'Consultez un expert-comptable pour un plan de retour a l\'equilibre sur 12 mois avec jalons mensuels.' });
+  }
+
+  // ENDETTEMENT
+  var dSt, dRe, dRec = [];
+  if (dettes === 0) {
+    dSt = 'ok';
+    dRe = 'Aucune dette bancaire - structure financiere non endettee. Position de securite maximale. La capacite d\'emprunt est intacte.';
+    dRec.push({ n: 'ok',   t: 'Pas d\'endettement bancaire : risque financier nul. Vous pouvez solliciter un financement si un projet de developpement se presente.' });
+    dRec.push({ n: 'info', t: 'Capitaux propres de ' + fmt(capitaux) + ' EUR : base saine pour lever des fonds a des conditions favorables.' });
+  } else if (ratioDe < 3) {
+    dSt = 'ok';
+    dRe = 'Ratio dettes/EBE de ' + ratioDe.toFixed(1) + 'x - endettement sain. Les banques considerent qu\'un ratio inferieur a 3x est confortable.';
+    dRec.push({ n: 'ok',   t: 'Ratio dettes/EBE a ' + ratioDe.toFixed(1) + 'x : en dessous du seuil bancaire de 3x. Capacite disponible pour un nouvel emprunt.' });
+    dRec.push({ n: 'info', t: 'Autonomie financiere a ' + ratioCP.toFixed(0) + '%. ' + (ratioCP >= 30 ? 'Niveau correct.' : 'En dessous de 30% - renforcez les fonds propres en mettant les benefices en reserve.') });
+  } else if (ratioDe < 5) {
+    dSt = 'warn';
+    dRe = 'Ratio dettes/EBE de ' + ratioDe.toFixed(1) + 'x - endettement eleve. Au-dela de 3x, les banques deviennent prudentes pour de nouveaux financements.';
+    dRec.push({ n: 'warn', t: 'Ratio dettes/EBE a ' + ratioDe.toFixed(1) + 'x (seuil bancaire : 3x). Priorisez le remboursement anticipe si votre tresorerie le permet.' });
+    dRec.push({ n: 'info', t: 'Autonomie financiere a ' + ratioCP.toFixed(0) + '%. ' + (ratioCP < 25 ? 'Insuffisant - limitez les distributions de dividendes pour renforcer les fonds propres.' : 'Niveau acceptable.') });
+    dRec.push({ n: 'info', t: ebe > 0 ? 'Vos mensualites de remboursement ne doivent pas depasser ' + fmt(ebe / 12 * 0.3) + ' EUR/mois (30% de l\'EBE mensuel).' : 'Calculez le ratio mensualites / EBE pour verifier la soutenabilite de votre remboursement.' });
+  } else if (ratioDe < 90) {
+    dSt = 'crit';
+    dRe = 'Ratio dettes/EBE de ' + ratioDe.toFixed(1) + 'x - sur-endettement. Au-dela de 5x, la capacite de remboursement est serieusement compromise.';
+    dRec.push({ n: 'crit', t: 'Renegociez immediatement l\'etalement de vos dettes avec votre banque pour reduire les mensualites.' });
+    dRec.push({ n: 'crit', t: 'Suspendez toute distribution de dividendes - toute capacite beneficiaire vers le desendettement.' });
+    dRec.push({ n: 'warn', t: 'Autonomie financiere a ' + ratioCP.toFixed(0) + '% - envisagez une augmentation de capital pour reequilibrer la structure.' });
+  } else {
+    dSt = 'warn';
+    dRe = 'EBE nul ou non renseigne - le ratio dettes/EBE ne peut pas etre calcule. Renseignez votre EBE pour une analyse complete.';
+    dRec.push({ n: 'info', t: 'Renseignez votre EBE pour calculer votre capacite de remboursement reelle.' });
+    dRec.push({ n: 'info', t: 'Dettes bancaires de ' + fmt(dettes) + ' EUR pour des capitaux propres de ' + fmt(capitaux) + ' EUR. Autonomie : ' + ratioCP.toFixed(0) + '%.' });
+  }
+
+  // SYNTHESE
+  var alertes = [tSt, rSt, dSt].filter(function(s) { return s === 'crit'; }).length;
+  var warns   = [tSt, rSt, dSt].filter(function(s) { return s === 'warn'; }).length;
+  var sRe, sRec = [];
+
+  if (alertes === 0 && warns === 0) {
+    sRe = 'Indicateurs financiers solides sur les trois axes. La tresorerie est securisee, la rentabilite satisfaisante et l\'endettement maitrise. L\'enjeu est de maintenir ces equilibres tout en saisissant des opportunites de croissance.';
+    sRec.push({ n: 'ok',   t: 'Situation globale saine. Preparez un plan de developpement : nouvelles lignes, recrutement, expansion.' });
+    sRec.push({ n: 'info', t: 'Structurez votre politique de remuneration dirigeant (arbitrage salaire vs dividendes) pour optimiser la fiscalite.' });
+    sRec.push({ n: 'info', t: 'Anticipez la transmission ou la valorisation - c\'est le bon moment pour structurer la valeur creee.' });
+  } else if (alertes === 0) {
+    var ptW = tSt === 'warn' ? 'tresorerie' : rSt === 'warn' ? 'rentabilite' : 'endettement';
+    sRe = 'Situation globalement correcte avec ' + warns + ' point(s) de vigilance. Aucune urgence critique, mais des marges de progression identifiees a traiter dans les 6 prochains mois.';
+    sRec.push({ n: 'warn', t: 'Priorite 1 : traiter le point de vigilance sur la ' + ptW + '. Fixez un objectif chiffre et une echeance de 6 mois.' });
+    sRec.push({ n: 'info', t: 'Organisez un bilan financier trimestriel avec votre expert-comptable pour suivre l\'evolution des indicateurs.' });
+    sRec.push({ n: 'info', t: 'Identifiez 2-3 leviers de croissance du CA pour ameliorer mecaniquement tous vos ratios.' });
+  } else if (alertes === 1) {
+    var ptC = tSt === 'crit' ? 'tresorerie' : rSt === 'crit' ? 'rentabilite' : 'endettement';
+    sRe = 'Un point critique identifie sur la ' + ptC + '. Ce desequilibre doit etre traite en priorite absolue dans les 90 jours - il conditionne la stabilite de l\'ensemble de la structure financiere.';
+    sRec.push({ n: 'crit', t: 'Action prioritaire : traiter le point critique sur la ' + ptC + ' avant tout investissement ou distribution.' });
+    sRec.push({ n: 'warn', t: 'Organisez un suivi mensuel avec votre expert-comptable jusqu\'a resolution du point critique.' });
+    sRec.push({ n: 'info', t: 'Informez votre banquier de maniere proactive - un dirigeant qui anticipe conserve bien plus de marge de negociation.' });
+  } else {
+    sRe = 'Situation preoccupante sur ' + alertes + ' axes critiques. L\'entreprise est fragilisee et necessite un plan d\'action structure immediat.';
+    sRec.push({ n: 'crit', t: 'Consultez immediatement un expert-comptable pour etablir un plan de redressement sur 12 mois.' });
+    sRec.push({ n: 'crit', t: 'Priorite absolue : stabiliser la tresorerie a 2 mois minimum (' + fmt(chargesM * 2) + ' EUR).' });
+    sRec.push({ n: 'warn', t: 'Identifiez les 3 postes de charges les plus lourds et negociez un etalement dans les 30 jours.' });
+    sRec.push({ n: 'info', t: 'Renseignez-vous sur les dispositifs de prevention (mandat ad hoc, conciliation) avant cessation de paiement.' });
+  }
+
+  return [
+    { icon: '&#127974;', nom: 'Tresorerie',          st: tSt, re: tRe, recs: tRec },
+    { icon: '&#128200;', nom: 'Rentabilite',          st: rSt, re: rRe, recs: rRec },
+    { icon: '&#9878;',   nom: 'Endettement',          st: dSt, re: dRe, recs: dRec },
+    { icon: '&#127919;', nom: 'Synthese & Priorites', st: 'info', re: sRe, recs: sRec }
+  ];
+}
+
+// ---- AFFICHER RAPPORT ----
+function afficherRapport(themes) {
+  var bMap = { ok: 'b-ok', warn: 'b-warn', crit: 'b-crit', info: 'b-info' };
+  var lMap = { ok: 'Bonne sante', warn: 'Vigilance', crit: 'Point critique', info: 'Analyse' };
+  var iMap = { ok: '&#10003;', warn: '&#9888;', crit: '&#10007;', info: '&#8594;' };
+  var html = '';
+  for (var i = 0; i < themes.length; i++) {
+    var t = themes[i];
+    var recsHtml = '';
+    for (var j = 0; j < t.recs.length; j++) {
+      var r = t.recs[j];
+      recsHtml += '<div class="reco ' + r.n + '"><span class="reco-icon">' + (iMap[r.n] || '&#8594;') + '</span><span>' + r.t + '</span></div>';
+    }
+    html += '<div class="theme anim" style="animation-delay:' + (i * 0.08) + 's">';
+    html += '<div class="theme-hd"><span class="theme-icon">' + t.icon + '</span><span class="theme-name">' + t.nom + '</span><span class="theme-badge ' + (bMap[t.st] || 'b-info') + '">' + (lMap[t.st] || t.st) + '</span></div>';
+    html += '<div class="theme-body"><p class="theme-resume">' + t.re + '</p><div class="recos">' + recsHtml + '</div></div>';
+    html += '</div>';
+  }
+  document.getElementById('report').innerHTML = html;
+}
+</script>
+
+<script>
+// Auto-demo si URL contient ?demo=1
+(function() {
+  if (window.location.search.indexOf('demo=1') !== -1) {
+    document.getElementById('pw-key').value = 'DEMO-1234-5678-ABCD';
+    setTimeout(function() {
+      var btn = document.getElementById('pw-btn');
+      if (btn) btn.click();
+    }, 300);
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StratAudit — Audit Financier pour PME et TPE</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0b1929;
+  --navy2:#0f2238;
+  --white:#ffffff;
+  --off:#f6f5f2;
+  --border:#e4e0d8;
+  --text:#0a0a0a;
+  --text2:#5a5a5a;
+  --text3:#999;
+  --gold:#c49a0a;
+  --gold2:#e0b820;
+  --green:#0a7a3e;
+  --red:#c0392b;
+  --r:12px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--text);overflow-x:hidden;font-size:17px;line-height:1.65}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:64px;padding:0 3rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--navy);
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.nav-logo{font-size:20px;font-weight:800;color:#fff;text-decoration:none;letter-spacing:-.01em}
+.nav-logo span{color:var(--gold2)}
+.nav-links{display:flex;align-items:center;gap:2.5rem}
+.nav-links a{font-size:14px;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:#fff}
+.nav-cta{
+  font-size:13px;font-weight:700;letter-spacing:.03em;
+  padding:10px 24px;border-radius:999px;
+  background:var(--gold);color:#fff;border:none;cursor:pointer;
+  text-decoration:none;transition:all .2s;
+}
+.nav-cta:hover{background:var(--gold2)}
+
+/* ── HERO (NAVY) ── */
+.hero{
+  background:var(--navy);
+  padding:140px 3rem 100px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,#000 30%,transparent 100%);
+}
+.hero-inner{max-width:1060px;margin:0 auto;position:relative;z-index:1}
+.hero-tag{
+  font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold2);margin-bottom:1.6rem;
+  display:flex;align-items:center;gap:10px;
+}
+.hero-tag::before{content:'';display:block;width:24px;height:2px;background:var(--gold2)}
+.hero-h1{
+  font-size:clamp(44px,7vw,90px);
+  font-weight:900;line-height:1.02;
+  color:#fff;letter-spacing:-.03em;
+  margin-bottom:1.6rem;
+}
+.hero-h1 .accent{color:var(--gold2)}
+.hero-h1 .light{font-weight:300;font-style:italic;color:rgba(255,255,255,.6);display:block;font-size:clamp(26px,4vw,48px);margin-top:.3rem;letter-spacing:-.01em}
+.hero-p{
+  font-size:19px;font-weight:300;line-height:1.75;
+  color:rgba(255,255,255,.55);max-width:580px;margin-bottom:2.5rem;
+}
+.hero-p strong{color:#fff;font-weight:600}
+.hero-btns{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:3.5rem}
+.btn-primary{
+  font-size:15px;font-weight:700;
+  padding:15px 36px;border-radius:999px;
+  background:var(--gold);color:#fff;border:none;cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+  transition:all .2s;box-shadow:0 4px 24px rgba(196,154,10,.3);
+}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-2px)}
+.btn-outline{
+  font-size:15px;font-weight:500;
+  padding:15px 28px;border-radius:999px;
+  background:transparent;color:rgba(255,255,255,.65);
+  border:1.5px solid rgba(255,255,255,.2);cursor:pointer;
+  text-decoration:none;transition:all .2s;
+}
+.btn-outline:hover{border-color:rgba(255,255,255,.5);color:#fff}
+.proof-strip{
+  display:flex;align-items:stretch;
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:var(--r);overflow:hidden;max-width:680px;
+}
+.pi{
+  flex:1;padding:1.2rem 1.4rem;text-align:center;
+  border-right:1.5px solid rgba(255,255,255,.1);
+}
+.pi:last-child{border-right:none}
+.pi-num{font-size:26px;font-weight:800;color:var(--gold2);line-height:1}
+.pi-lbl{font-size:12px;color:rgba(255,255,255,.4);font-weight:400;margin-top:3px}
+
+/* ── SECTION BASE ── */
+.section-white{background:var(--white);padding:96px 3rem}
+.section-off{background:var(--navy);padding:96px 3rem}
+.section-navy{background:var(--navy);padding:96px 3rem}
+.wrap{max-width:1060px;margin:0 auto}
+.s-tag{
+  font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--text3);margin-bottom:1rem;
+  display:flex;align-items:center;gap:8px;
+}
+.s-tag::before{content:'';display:block;width:18px;height:2px;background:var(--gold)}
+.section-navy .s-tag,.section-off .s-tag{color:rgba(255,255,255,.35)}
+.section-navy .s-tag::before,.section-off .s-tag::before{background:var(--gold2)}
+h2{font-size:clamp(30px,4vw,50px);font-weight:800;line-height:1.1;color:var(--text);letter-spacing:-.02em;margin-bottom:1.1rem}
+.section-navy h2,.section-off h2{color:#fff}
+.sub-text{font-size:18px;font-weight:300;line-height:1.75;color:var(--text2);max-width:580px}
+.section-navy .sub-text,.section-off .sub-text{color:rgba(255,255,255,.5)}
+
+/* ── POUR QUI ── */
+.pq-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:2.5rem}
+.pq-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:2.2rem 2rem;transition:border-color .2s,transform .2s}
+.pq-card:hover{border-color:var(--navy);transform:translateY(-3px)}
+.pq-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:var(--navy);color:#fff;margin-bottom:1.1rem}
+.pq-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:.6rem}
+.pq-desc{font-size:15px;color:var(--text2);font-weight:300;line-height:1.65}
+
+/* ── AVANT / APRÈS ── */
+.aa-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:2.5rem;border:1.5px solid rgba(255,255,255,.1);border-radius:var(--r);overflow:hidden}
+.aa-col{padding:2.2rem 2rem}
+.aa-col.avant{background:rgba(255,255,255,.04);border-right:1.5px solid rgba(255,255,255,.1)}
+.aa-col.apres{background:rgba(255,255,255,.08)}
+.aa-head{font-size:16px;font-weight:700;margin-bottom:1.5rem;display:flex;align-items:center;gap:8px;color:#fff!important}
+.aa-col.avant .aa-head{color:var(--red)}
+.aa-col.apres .aa-head{color:var(--green)}
+.aa-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:15px;color:rgba(255,255,255,.65);line-height:1.55}
+.aa-item:last-child{border-bottom:none}
+.aa-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.aa-col.avant .aa-dot{background:var(--red)}
+.aa-col.apres .aa-dot{background:var(--green)}
+
+/* ── STATS NAVY ── */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:2.5rem;gap:1px;background:rgba(255,255,255,.07)}
+.stat{background:var(--navy);padding:2.8rem 2.5rem}
+.stat:hover{background:var(--navy2)}
+.stat-num{font-size:clamp(48px,6vw,68px);font-weight:900;color:var(--gold2);line-height:1;margin-bottom:.5rem;letter-spacing:-.03em}
+.stat-title{font-size:17px;font-weight:700;color:#fff;margin-bottom:.4rem}
+.stat-desc{font-size:14px;font-weight:300;color:rgba(255,255,255,.45);line-height:1.65}
+
+/* ── DÉMO ── */
+.demo-win{margin-top:2.5rem;background:var(--navy2);border-radius:var(--r);overflow:hidden;border:1.5px solid rgba(255,255,255,.08);box-shadow:0 16px 48px rgba(11,25,41,.15)}
+.demo-bar{background:rgba(255,255,255,.04);padding:12px 18px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.dot{width:11px;height:11px;border-radius:50%}
+.dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+.demo-url{margin-left:10px;font-size:12px;color:rgba(255,255,255,.25)}
+.demo-body{padding:2rem 2.5rem}
+.demo-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.dk{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.9rem 1rem}
+.dk-l{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:5px}
+.dk-v{font-size:20px;font-weight:800;color:#fff;line-height:1}
+.dk-s{font-size:10px;color:rgba(255,255,255,.25);margin-top:3px}
+.demo-themes{display:flex;flex-direction:column;gap:8px}
+.dt{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;overflow:hidden}
+.dt-hd{display:flex;align-items:center;gap:10px;padding:.75rem 1.1rem;border-bottom:1px solid rgba(255,255,255,.05)}
+.dt-name{font-size:13px;font-weight:600;color:rgba(255,255,255,.8)}
+.dt-badge{margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:999px}
+.b-ok{background:rgba(26,102,68,.3);color:#4dba87}
+.b-warn{background:rgba(196,154,10,.2);color:#e0c060}
+.b-crit{background:rgba(180,40,24,.3);color:#e07070}
+.dt-body{padding:.75rem 1.1rem}
+.dt-reco{padding:5px 9px;border-radius:5px;font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px;display:flex;gap:7px;line-height:1.5}
+.dt-reco.ok{background:rgba(26,102,68,.15);border-left:2px solid rgba(77,186,135,.4)}
+.dt-reco.warn{background:rgba(196,154,10,.12);border-left:2px solid rgba(224,184,32,.4)}
+.dt-reco.crit{background:rgba(180,40,24,.15);border-left:2px solid rgba(224,112,112,.4)}
+
+/* ── LEXIQUE ── */
+.lex-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:2.5rem}
+.lex{border:1.5px solid rgba(255,255,255,.1);border-radius:var(--r);padding:1.5rem 1.8rem;transition:border-color .2s,transform .2s;background:rgba(255,255,255,.05)}
+.lex:hover{border-color:rgba(255,255,255,.3);transform:translateY(-2px)}
+.lex-term{font-size:15px;font-weight:700;color:#fff;margin-bottom:.3rem}
+.lex-def{font-size:13px;color:rgba(255,255,255,.5);font-weight:300;line-height:1.6}
+
+/* ── LIVRABLES ── */
+.liv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:2.5rem}
+.liv{border:1.5px solid var(--border);border-radius:var(--r);padding:2rem 1.8rem;background:var(--white);position:relative;overflow:hidden;transition:border-color .2s,transform .2s}
+.liv:hover{border-color:var(--navy);transform:translateY(-3px)}
+.liv::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold)}
+.liv-num{font-size:36px;font-weight:900;color:var(--border);line-height:1;margin-bottom:.7rem;letter-spacing:-.02em}
+.liv h3{font-size:17px;font-weight:700;color:var(--text);margin-bottom:.4rem}
+.liv p{font-size:14px;color:var(--text2);font-weight:300;line-height:1.65}
+
+/* ── PRICING ── */
+.pricing-wrap{display:flex;justify-content:center;margin-top:2.5rem}
+.pc{background:var(--white);border:none;border-radius:var(--r);padding:3.5rem;max-width:520px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.08);position:relative;overflow:hidden}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--navy)}
+.pc-for{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:1rem}
+.pc-name{font-size:26px;font-weight:800;color:var(--text);margin-bottom:.3rem;letter-spacing:-.01em}
+.pc-desc{font-size:16px;color:var(--text2);font-weight:300;margin-bottom:2rem;line-height:1.65}
+.pc-price{display:flex;align-items:baseline;gap:4px;margin-bottom:2rem}
+.pc-cur{font-size:22px;color:var(--text3);font-weight:300}
+.pc-num{font-size:72px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-.03em}
+.pc-once{font-size:14px;color:var(--text3);font-weight:300;margin-left:6px;align-self:center}
+.pc-feats{list-style:none;margin-bottom:2.5rem;display:flex;flex-direction:column;gap:12px}
+.pc-feats li{display:flex;align-items:flex-start;gap:12px;font-size:16px;color:var(--text2);line-height:1.5}
+.pc-feats li::before{content:'✓';font-weight:700;color:var(--green);flex-shrink:0}
+.btn-buy{width:100%;padding:17px;font-size:15px;font-weight:700;background:var(--navy);border:none;border-radius:var(--r);color:#fff;cursor:pointer;text-decoration:none;display:block;text-align:center;transition:all .2s}
+.btn-buy:hover{background:var(--navy2);transform:translateY(-1px)}
+.pc-note{margin-top:1rem;font-size:13px;color:var(--text3);text-align:center}
+
+/* ── FAQ ── */
+.faq-list{max-width:720px;margin:2.5rem auto 0}
+.faq-item{border-bottom:1.5px solid var(--border);padding:1.4rem 0;cursor:pointer}
+.faq-q{display:flex;justify-content:space-between;align-items:center;gap:1rem;font-size:17px;font-weight:600;color:var(--text)}
+.faq-icon{font-size:22px;color:var(--text3);flex-shrink:0;transition:transform .25s}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-a{font-size:15px;color:var(--text2);font-weight:300;line-height:1.75;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s}
+.faq-item.open .faq-a{max-height:300px;padding-top:.8rem}
+
+/* ── FOOTER ── */
+footer{background:var(--navy);padding:3rem 3rem;text-align:center}
+.footer-logo{font-size:22px;font-weight:800;color:#fff;margin-bottom:.4rem;letter-spacing:-.01em}
+.footer-logo span{color:var(--gold2)}
+.footer-copy{font-size:13px;color:rgba(255,255,255,.3)}
+
+/* ── ANIM ── */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.on{opacity:1;transform:none}
+
+@media(max-width:768px){
+  nav{padding:0 1.2rem}.nav-links{display:none}
+  .hero{padding:100px 1.5rem 70px}
+  .section-white,.section-off,.section-navy{padding:70px 1.5rem}
+  .pq-grid,.aa-grid,.stats-grid,.lex-grid,.liv-grid{grid-template-columns:1fr}
+  .aa-col.avant{border-right:none;border-bottom:1.5px solid var(--border)}
+  .demo-kpis{grid-template-columns:repeat(2,1fr)}
+  .proof-strip{flex-wrap:wrap}
+  .pc{padding:2rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">Strat<span>Audit</span></a>
+  <div class="nav-links">
+    <a href="#pourquoi">Pourquoi StratAudit</a>
+    <a href="#rapport">Le rapport</a>
+    <a href="#tarif">Tarif</a>
+  </div>
+  <a href="https://selenestudio.lemonsqueezy.com/checkout/buy/42a5ec29-2140-4449-ab12-4e57252b1a18" class="nav-cta">Obtenir mon audit →</a>
+</nav>
+
+<!-- HERO NAVY -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Pour PME et TPE</div>
+    <h1 class="hero-h1">
+      <span class="accent">Audit financier</span>
+      <span class="light">pour prendre les bonnes décisions</span>
+    </h1>
+    <p class="hero-p">Entrez vos chiffres — <strong>trésorerie, bilan, résultat net, capitaux propres.</strong> Recevez en 60 secondes un diagnostic complet avec des recommandations chiffrées en euros.</p>
+    <div class="hero-btns">
+      <a href="https://selenestudio.lemonsqueezy.com/checkout/buy/42a5ec29-2140-4449-ab12-4e57252b1a18" class="btn-primary">Lancer mon audit — 139 € →</a>
+      <a href="/diagnostic.html?demo=1" class="btn-outline" target="_blank">Voir la démo gratuite</a>
+    </div>
+    <div class="proof-strip">
+      <div class="pi"><div class="pi-num">60s</div><div class="pi-lbl">Résultats</div></div>
+      <div class="pi"><div class="pi-num">4</div><div class="pi-lbl">Axes analysés</div></div>
+      <div class="pi"><div class="pi-num">10+</div><div class="pi-lbl">Ratios calculés</div></div>
+      <div class="pi"><div class="pi-num">139€</div><div class="pi-lbl">Accès unique</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- POUR QUI — BLANC -->
+<section class="section-white" id="pourquoi">
+  <div class="wrap">
+    <div class="s-tag reveal">Pour qui</div>
+    <h2 class="reveal">Conçu pour les PME et TPE</h2>
+    <p class="sub-text reveal">Que vous dirigiez une entreprise de 2 ou 50 personnes, StratAudit analyse votre situation financière avec les mêmes critères qu'un directeur financier.</p>
+    <div class="pq-grid reveal">
+      <div class="pq-card">
+        <div class="pq-badge">TPE</div>
+        <div class="pq-title">Très Petites Entreprises</div>
+        <p class="pq-desc">Autoentrepreneurs, artisans, commerçants et professions libérales. Vous n'avez pas de DAF. StratAudit vous donne la même lecture que si vous en aviez un.</p>
+      </div>
+      <div class="pq-card">
+        <div class="pq-badge">PME</div>
+        <div class="pq-title">Petites et Moyennes Entreprises</div>
+        <p class="pq-desc">Dirigeants de 5 à 250 salariés. Vos chiffres existent mais personne ne les traduit en décisions stratégiques. StratAudit comble ce manque.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AVANT/APRÈS — GRIS -->
+<section class="section-off">
+  <div class="wrap">
+    <div class="s-tag reveal">Le constat</div>
+    <h2 class="reveal">Avant et après StratAudit</h2>
+    <p class="sub-text reveal">La plupart des dirigeants reçoivent leurs chiffres une fois par an. Trop tard pour agir.</p>
+    <div class="aa-grid reveal">
+      <div class="aa-col avant">
+        <div class="aa-head">✗ Sans StratAudit</div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Vous attendez la clôture annuelle pour avoir une vision claire de votre bilan</span></div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Vous ne savez pas si votre trésorerie couvre 1 ou 4 mois de charges fixes</span></div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Vos décisions d'investissement se font à l'intuition, sans base chiffrée</span></div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Votre banquier parle de ratio d'endettement que vous n'avez pas anticipé</span></div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Votre seuil de rentabilité reste une notion floue dans vos comptes</span></div>
+      </div>
+      <div class="aa-col apres">
+        <div class="aa-head">✓ Avec StratAudit</div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Votre diagnostic complet est disponible en 60 secondes, quand vous en avez besoin</span></div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Vous connaissez exactement vos mois de trésorerie et le montant cible à atteindre</span></div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Chaque décision s'appuie sur des ratios concrets, chiffrés en euros</span></div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Vous arrivez en réunion bancaire avec les mêmes indicateurs que votre interlocuteur</span></div>
+        <div class="aa-item"><div class="aa-dot"></div><span>Votre seuil de rentabilité, marge brute et autofinancement sont calculés automatiquement</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS — NAVY -->
+<section class="section-navy">
+  <div class="wrap">
+    <div class="s-tag reveal">Pourquoi ça compte</div>
+    <h2 class="reveal">Des chiffres qui parlent d'eux-mêmes</h2>
+    <p class="sub-text reveal">La gestion financière d'une PME ou TPE ne s'improvise pas. Elle se pilote avec des indicateurs précis.</p>
+    <div class="stats-grid reveal">
+      <div class="stat">
+        <div class="stat-num">67%</div>
+        <div class="stat-title">Des défaillances évitables</div>
+        <div class="stat-desc">Des entreprises qui font faillite auraient pu l'anticiper 12 mois plus tôt avec un suivi de leur trésorerie et de leur bilan.</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">3 mois</div>
+        <div class="stat-title">Le délai critique</div>
+        <div class="stat-desc">Entre l'apparition d'un signal d'alerte dans les capitaux propres et la prise de décision du dirigeant. StratAudit supprime ce délai.</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">2 min</div>
+        <div class="stat-title">Pour tout renseigner</div>
+        <div class="stat-desc">10 chiffres issus de votre compte de résultat et de votre bilan. Pas de connexion comptable requise.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DÉMO — BLANC -->
+<section class="section-white" id="rapport">
+  <div class="wrap">
+    <div class="s-tag reveal">Le rapport</div>
+    <h2 class="reveal">Voici ce que vous recevez</h2>
+    <p class="sub-text reveal">Un rapport lisible en 5 minutes, avec des recommandations formulées en euros et en actions concrètes pour votre PME ou TPE.</p>
+    <div class="demo-win reveal">
+      <div class="demo-bar">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="demo-url">strataudit.fr/diagnostic.html</span>
+      </div>
+      <div class="demo-body">
+        <div class="demo-kpis">
+          <div class="dk"><div class="dk-l">CA Annuel</div><div class="dk-v">480 k€</div><div class="dk-s">Chiffre d'affaires</div></div>
+          <div class="dk"><div class="dk-l">Marge brute</div><div class="dk-v">38,5%</div><div class="dk-s">Après charges directes</div></div>
+          <div class="dk"><div class="dk-l">Trésorerie</div><div class="dk-v">2,4 mois</div><div class="dk-s">De charges couvertes</div></div>
+          <div class="dk"><div class="dk-l">Autofinancement</div><div class="dk-v">68 k€</div><div class="dk-s">Capacité annuelle</div></div>
+        </div>
+        <div class="demo-themes">
+          <div class="dt"><div class="dt-hd"><span>🏦</span><span class="dt-name">Trésorerie</span><span class="dt-badge b-warn">Vigilance</span></div><div class="dt-body"><div class="dt-reco warn">⚠ Constituez une réserve cible de 96 000 € (3 mois de charges) d'ici 6 mois.</div><div class="dt-reco warn">⚠ Délai client de 52 jours — réduire à 30 jours libérerait 68 000 € de trésorerie.</div></div></div>
+          <div class="dt"><div class="dt-hd"><span>📈</span><span class="dt-name">Rentabilité</span><span class="dt-badge b-ok">Bonne santé</span></div><div class="dt-body"><div class="dt-reco ok">✓ Marge brute à 38,5%. Une hausse tarifaire de 3% génère 14 400 € de résultat additionnel.</div></div></div>
+          <div class="dt"><div class="dt-hd"><span>⚖️</span><span class="dt-name">Endettement</span><span class="dt-badge b-crit">Point critique</span></div><div class="dt-body"><div class="dt-reco crit">✗ Ratio dettes/EBE à 3,8x — au-dessus du seuil bancaire de 3x. Remboursement anticipé prioritaire.</div></div></div>
+          <div class="dt"><div class="dt-hd"><span>🎯</span><span class="dt-name">Synthèse & Priorités</span><span class="dt-badge b-ok">Analyse</span></div><div class="dt-body"><div class="dt-reco ok">✓ Priorité 1 : renforcer la trésorerie à 96 000 €. Priorité 2 : réduire le ratio d'endettement sous 3x.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LEXIQUE — GRIS -->
+<section class="section-off">
+  <div class="wrap">
+    <div class="s-tag reveal">Ce que StratAudit analyse</div>
+    <h2 class="reveal">Les indicateurs clés de votre entreprise</h2>
+    <p class="sub-text reveal">StratAudit calcule et interprète pour vous les ratios que votre banquier et votre expert-comptable utilisent.</p>
+    <div class="lex-grid reveal">
+      <div class="lex"><div class="lex-term">Trésorerie</div><div class="lex-def">Les liquidités disponibles à un instant T. StratAudit calcule combien de mois de charges vous pouvez couvrir.</div></div>
+      <div class="lex"><div class="lex-term">EBE — Excédent Brut d'Exploitation</div><div class="lex-def">Votre rentabilité opérationnelle avant impôts et amortissements. L'indicateur préféré des banquiers.</div></div>
+      <div class="lex"><div class="lex-term">Bilan</div><div class="lex-def">La photographie du patrimoine de votre entreprise. StratAudit détecte les déséquilibres dans votre structure.</div></div>
+      <div class="lex"><div class="lex-term">Capitaux propres</div><div class="lex-def">Ce que votre entreprise possède réellement après déduction de toutes les dettes.</div></div>
+      <div class="lex"><div class="lex-term">Marge brute</div><div class="lex-def">La différence entre votre CA et vos coûts directs. Comparée aux seuils de votre secteur.</div></div>
+      <div class="lex"><div class="lex-term">Seuil de rentabilité</div><div class="lex-def">Le niveau de CA à partir duquel votre entreprise couvre toutes ses charges. Calculé automatiquement.</div></div>
+      <div class="lex"><div class="lex-term">Ratio d'endettement</div><div class="lex-def">Le rapport entre vos dettes bancaires et votre EBE. Au-delà de 3x, votre accès au crédit se complique.</div></div>
+      <div class="lex"><div class="lex-term">Résultat net</div><div class="lex-def">Ce qu'il reste après toutes les charges et impôts. StratAudit calcule votre marge nette et la compare.</div></div>
+      <div class="lex"><div class="lex-term">Autofinancement</div><div class="lex-def">Votre capacité à financer votre croissance sans emprunt. Un indicateur clé de l'autonomie de votre PME.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVRABLES — BLANC -->
+<section class="section-white">
+  <div class="wrap">
+    <div class="s-tag reveal">Contenu du rapport</div>
+    <h2 class="reveal">6 analyses dans votre diagnostic</h2>
+    <div class="liv-grid">
+      <div class="liv reveal"><div class="liv-num">01</div><h3>Diagnostic Trésorerie</h3><p>Mois de charges couverts, risque de rupture et montant exact à atteindre pour sécuriser votre position.</p></div>
+      <div class="liv reveal"><div class="liv-num">02</div><h3>Analyse Rentabilité</h3><p>Marge brute, marge nette, taux de charges — avec les leviers pour améliorer chaque point, chiffrés en euros.</p></div>
+      <div class="liv reveal"><div class="liv-num">03</div><h3>Audit Endettement</h3><p>Ratio dettes/EBE, autonomie financière et capitaux propres — le regard d'un banquier avant qu'il ne le pose.</p></div>
+      <div class="liv reveal"><div class="liv-num">04</div><h3>Recommandations Chiffrées</h3><p>Chaque recommandation inclut un montant précis, un délai réaliste et un objectif mesurable.</p></div>
+      <div class="liv reveal"><div class="liv-num">05</div><h3>Score de Santé / 100</h3><p>Un indicateur synthétique sur 4 dimensions pour une lecture objective et immédiate de votre solidité.</p></div>
+      <div class="liv reveal"><div class="liv-num">06</div><h3>Synthèse Stratégique</h3><p>Les 2 ou 3 priorités absolues, classées par urgence et impact financier. Pour agir là où ça compte.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING — GRIS -->
+<section class="section-off" id="tarif">
+  <div class="wrap" style="text-align:center">
+    <div class="s-tag reveal" style="justify-content:center;color:rgba(255,255,255,.35)">Accès</div>
+    <h2 class="reveal" style="color:#fff">Un investissement rentable dès la première décision</h2>
+    <p class="sub-text reveal" style="margin:0 auto;color:rgba(255,255,255,.5)">Un seul mauvais investissement ou une trésorerie mal gérée coûte bien plus que 139 €.</p>
+    <div class="pricing-wrap">
+      <div class="pc reveal">
+        <div class="pc-for">Pour PME et TPE</div>
+        <div class="pc-name">StratAudit</div>
+        <div class="pc-desc">Audit financier stratégique complet.<br>Résultats immédiats, recommandations actionnables.</div>
+        <div class="pc-price">
+          <span class="pc-cur">€</span>
+          <span class="pc-num">139</span>
+          <span class="pc-once">accès unique</span>
+        </div>
+        <ul class="pc-feats">
+          <li>Diagnostic trésorerie, rentabilité et endettement</li>
+          <li>Score de santé financière sur 100</li>
+          <li>Recommandations chiffrées et actionnables</li>
+          <li>Analyse bilan et capitaux propres</li>
+          <li>Synthèse stratégique et priorités dirigeant</li>
+          <li>Accès immédiat par clé de licence après paiement</li>
+        </ul>
+        <a href="https://selenestudio.lemonsqueezy.com/checkout/buy/42a5ec29-2140-4449-ab12-4e57252b1a18" class="btn-buy">Accéder à mon audit financier — 139 €</a>
+        <div class="pc-note">🔒 Paiement sécurisé · Données confidentielles · Accès immédiat</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ — BLANC -->
+<section class="section-white">
+  <div class="wrap" style="text-align:center">
+    <div class="s-tag reveal" style="justify-content:center">FAQ</div>
+    <h2 class="reveal">Vos questions</h2>
+    <div class="faq-list">
+      <div class="faq-item reveal" onclick="faq(this)"><div class="faq-q">À qui s'adresse StratAudit ? <span class="faq-icon">+</span></div><div class="faq-a">Aux dirigeants de PME et TPE qui veulent une lecture claire de leur situation financière — sans attendre la clôture annuelle ni payer une journée de conseil.</div></div>
+      <div class="faq-item reveal" onclick="faq(this)"><div class="faq-q">Quels chiffres dois-je fournir ? <span class="faq-icon">+</span></div><div class="faq-a">10 chiffres issus de votre compte de résultat et bilan : CA, charges, résultat net, EBE, trésorerie, dettes bancaires, capitaux propres et délai client. Tous disponibles dans votre dernière liasse fiscale.</div></div>
+      <div class="faq-item reveal" onclick="faq(this)"><div class="faq-q">En quoi est-ce différent de mon expert-comptable ? <span class="faq-icon">+</span></div><div class="faq-a">Votre expert-comptable produit des documents conformes. StratAudit les traduit en décisions : que signifient vos chiffres pour vos investissements, votre financement, votre rémunération ? C'est un outil de pilotage, pas de conformité.</div></div>
+      <div class="faq-item reveal" onclick="faq(this)"><div class="faq-q">Comment accéder à l'outil après paiement ? <span class="faq-icon">+</span></div><div class="faq-a">Immédiatement. Après confirmation du paiement, vous recevez par email une clé de licence unique. Vous la saisissez sur strataudit.fr et accédez au dashboard en moins d'une minute.</div></div>
+      <div class="faq-item reveal" onclick="faq(this)"><div class="faq-q">Mes données financières sont-elles confidentielles ? <span class="faq-icon">+</span></div><div class="faq-a">Oui. Toutes les analyses sont effectuées directement dans votre navigateur. Aucune donnée financière n'est transmise ni stockée sur nos serveurs. Vos chiffres restent sur votre machine.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER NAVY -->
+<footer>
+  <div class="footer-logo">Strat<span>Audit</span></div>
+  <div class="footer-copy">© 2026 StratAudit · Audit financier stratégique pour PME et TPE</div>
+</footer>
+
+<script>
+var obs = new IntersectionObserver(function(e){
+  e.forEach(function(el){if(el.isIntersecting){el.target.classList.add('on');obs.unobserve(el.target);}});
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el)});
+function faq(el){
+  var open=el.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open')});
+  if(!open)el.classList.add('open');
+}
+</script>
+</body>
+</html>
